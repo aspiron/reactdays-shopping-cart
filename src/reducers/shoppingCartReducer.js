@@ -45,6 +45,35 @@ export const shoppingCartReducer = (state = initState, action) => {
             }
         }
 
+        case t.REMOVE_ITEM_FROM_SHOPPING_CART: {
+            const currentCartItem = state.cart
+                .find(cartItem => cartItem.itemId === action.item.id)
+
+            if (currentCartItem) {
+                if (currentCartItem.count > 1) {
+                    return {
+                        cart: state.cart.map(cartItem => {
+                            if (cartItem.id === currentCartItem.id) {
+                                return {
+                                    ...cartItem,
+                                    count: cartItem.count - 1
+                                }
+                            } else {
+                                return cartItem
+                            }
+                        })
+                    }
+                } else {
+                    return {
+                        cart: state.cart.filter(cartItem => cartItem.id !== currentCartItem.id)
+                    }
+                }
+                
+            } else { 
+                return state
+            }
+        }
+
         default:
             return state;
     }

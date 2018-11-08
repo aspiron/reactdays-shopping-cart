@@ -17,7 +17,7 @@ const Item = ({ item, cart }) => {
   );
 }
 
-const HomePageComponent = ({ items, addItemToShoppingCart, cart }) => {
+const HomePageComponent = ({ items, addItemToShoppingCart, cart, removeItemFromShoppingCart }) => {
   console.log(cart);
 
   return (
@@ -26,6 +26,7 @@ const HomePageComponent = ({ items, addItemToShoppingCart, cart }) => {
         <div key={item.id}>
           <Item item={item} cart={cart} />
           <button onClick={() => addItemToShoppingCart(item)}>Add to Cart</button>
+          <button onClick={() => removeItemFromShoppingCart(item)}>Add to Cart</button>
         </div>
       )}
     </div>
@@ -58,7 +59,8 @@ HomePageComponent.propTypes = {
     itemId: PropTypes.number,
     count: PropTypes.number
   })),
-  addItemToShoppingCart: PropTypes.func
+  addItemToShoppingCart: PropTypes.func,
+  removeItemFromShoppingCart: PropTypes.func
 }
 
 const mapStateToProps = (state) => ({
@@ -68,7 +70,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    addItemToShoppingCart: id => dispatch(actions.addItemToShoppingCart(id))
+    addItemToShoppingCart: id => dispatch(actions.addItemToShoppingCart(id)),
+    removeItemFromShoppingCart: id => dispatch(actions.removeItemFromShoppingCart(id))
   }
 }
 
