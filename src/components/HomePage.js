@@ -19,7 +19,7 @@ const Item = ({ item, cart, addItemToShoppingCart, removeItemFromShoppingCart })
   );
 }
 
-const CartItem = ({cartItem, items, addItemToShoppingCart, removeItemFromShoppingCart}) => {
+const CartItem = ({ cartItem, items, addItemToShoppingCart, removeItemFromShoppingCart }) => {
   const item = items.find(item => item.id === cartItem.itemId);
 
   return (
@@ -33,27 +33,35 @@ const CartItem = ({cartItem, items, addItemToShoppingCart, removeItemFromShoppin
   );
 }
 
-const Cart = ({items, cart, addItemToShoppingCart, removeItemFromShoppingCart}) => {
+const Cart = ({ items, cart, addItemToShoppingCart, removeItemFromShoppingCart }) => {
+
+  let sum = 0;
+  cart.forEach(cartItem => {
+    const item = items.find(item => item.id === cartItem.itemId);
+    sum += parseFloat(item.price) * cartItem.count;
+    console.log(sum);
+  })
+
   const hasItems = cart.length > 0
   const itemsInCart = hasItems ? (
     cart.map(cartItem =>
       <div key={cartItem.itemId}>
-        <CartItem 
+        <CartItem
           cartItem={cartItem}
           items={items}
           addItemToShoppingCart={addItemToShoppingCart}
           removeItemFromShoppingCart={removeItemFromShoppingCart}
-        />  
+        />
       </div>
     )
   ) : (
-    <p>Please add some produts to cart</p>
-  )
-
+      <div>Please add some produts to cart</div>
+    )
   return (
     <div>
       <p>Shopping Cart</p>
       <div>{itemsInCart}</div>
+      <div>{sum}</div>
     </div>
   );
 }
@@ -64,10 +72,10 @@ const HomePageComponent = ({ items, addItemToShoppingCart, cart, removeItemFromS
     <div>
       {items.map(item =>
         <div key={item.id}>
-          <Item item={item} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart}/>
+          <Item item={item} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart} />
         </div>
       )}
-      <Cart items={items} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart}/>
+      <Cart items={items} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart} />
     </div>
   );
 }
