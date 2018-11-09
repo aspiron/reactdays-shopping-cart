@@ -2,10 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { PropTypes } from 'prop-types';
 import { actions } from '../actions/actions';
-import { items } from '../reducers/initialState';
 
 
-const Item = ({ item, cart }) => {
+const Item = ({ item, cart, addItemToShoppingCart, removeItemFromShoppingCart }) => {
   const cartItem = cart.find(cartItem => cartItem.itemId === item.id);
 
   return (
@@ -14,11 +13,13 @@ const Item = ({ item, cart }) => {
       <p>{item.itemImg}</p>
       <p>{item.price}</p>
       <p>{cartItem ? cartItem.count : 0}</p>
+      <button onClick={() => addItemToShoppingCart(item)}>Add to Cart</button>
+      <button onClick={() => removeItemFromShoppingCart(item)}>Remove from Cart</button>
     </div>
   );
 }
 
-const CartItem = ({cartItem, items}) => {
+const CartItem = ({cartItem, items, addItemToShoppingCart, removeItemFromShoppingCart}) => {
   const item = items.find(item => item.id === cartItem.itemId);
 
   return (
@@ -26,11 +27,13 @@ const CartItem = ({cartItem, items}) => {
       <p>{item.title}</p>
       <p>{item.price}</p>
       <p>{cartItem ? cartItem.count : 0}</p>
+      <button onClick={() => addItemToShoppingCart(item)}>Add to Cart</button>
+      <button onClick={() => removeItemFromShoppingCart(item)}>Remove from Cart</button>
     </div>
   );
 }
 
-const Cart = ({items, cart}) => {
+const Cart = ({items, cart, addItemToShoppingCart, removeItemFromShoppingCart}) => {
   const hasItems = cart.length > 0
   const itemsInCart = hasItems ? (
     cart.map(cartItem =>
@@ -38,7 +41,9 @@ const Cart = ({items, cart}) => {
         <CartItem 
           cartItem={cartItem}
           items={items}
-        />
+          addItemToShoppingCart={addItemToShoppingCart}
+          removeItemFromShoppingCart={removeItemFromShoppingCart}
+        />  
       </div>
     )
   ) : (
@@ -54,18 +59,15 @@ const Cart = ({items, cart}) => {
 }
 
 const HomePageComponent = ({ items, addItemToShoppingCart, cart, removeItemFromShoppingCart }) => {
-  console.log(cart);
 
   return (
     <div>
       {items.map(item =>
         <div key={item.id}>
-          <Item item={item} cart={cart} />
-          <button onClick={() => addItemToShoppingCart(item)}>Add to Cart</button>
-          <button onClick={() => removeItemFromShoppingCart(item)}>Remove from Cart</button>
+          <Item item={item} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart}/>
         </div>
       )}
-      <Cart items={items} cart={cart}/>
+      <Cart items={items} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart}/>
     </div>
   );
 }
@@ -81,7 +83,9 @@ Item.propTypes = {
     id: PropTypes.number,
     itemId: PropTypes.number,
     count: PropTypes.number
-  }))
+  })),
+  addItemToShoppingCart: PropTypes.func,
+  removeItemFromShoppingCart: PropTypes.func
 }
 
 CartItem.propTypes = {
@@ -96,7 +100,9 @@ CartItem.propTypes = {
     title: PropTypes.title,
     itemImg: PropTypes.string,
     price: PropTypes.string
-  }))
+  })),
+  addItemToShoppingCart: PropTypes.func,
+  removeItemFromShoppingCart: PropTypes.func
 }
 
 Cart.propTypes = {
@@ -111,6 +117,8 @@ Cart.propTypes = {
     itemId: PropTypes.number,
     count: PropTypes.number
   })),
+  addItemToShoppingCart: PropTypes.func,
+  removeItemFromShoppingCart: PropTypes.func
 }
 
 HomePageComponent.propTypes = {
