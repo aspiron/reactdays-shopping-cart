@@ -91,10 +91,11 @@ CartItem.propTypes = {
     itemImg: PropTypes.string,
     price: PropTypes.string
   }),
-  cart: PropTypes.arrayOf(PropTypes.shape({
+  items: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.number,
-    itemId: PropTypes.number,
-    count: PropTypes.number
+    title: PropTypes.title,
+    itemImg: PropTypes.string,
+    price: PropTypes.string
   }))
 }
 
