@@ -39,7 +39,6 @@ const Cart = ({ items, cart, addItemToShoppingCart, removeItemFromShoppingCart }
   cart.forEach(cartItem => {
     const item = items.find(item => item.id === cartItem.itemId);
     sum += parseFloat(item.price) * cartItem.count;
-    console.log(sum);
   })
 
   const hasItems = cart.length > 0
@@ -55,7 +54,7 @@ const Cart = ({ items, cart, addItemToShoppingCart, removeItemFromShoppingCart }
       </div>
     )
   ) : (
-      <div>Please add some produts to cart</div>
+      <div>Please add some products to cart</div>
     )
   return (
     <div>
@@ -66,11 +65,14 @@ const Cart = ({ items, cart, addItemToShoppingCart, removeItemFromShoppingCart }
   );
 }
 
-const HomePageComponent = ({ items, addItemToShoppingCart, cart, removeItemFromShoppingCart }) => {
+const HomePageComponent = ({ items, addItemToShoppingCart, cart, removeItemFromShoppingCart, selectCategory, selectedCategory }) => {
+  const filteredItems = items.filter(item => item.category === selectedCategory)
 
   return (
     <div>
-      {items.map(item =>
+        <button onClick={() => selectCategory("food")}>Food</button>
+        <button onClick={() => selectCategory("fashion")}>Fashion</button> 
+      {filteredItems.map(item =>
         <div key={item.id}>
           <Item item={item} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart} />
         </div>
@@ -141,19 +143,23 @@ HomePageComponent.propTypes = {
     itemId: PropTypes.number,
     count: PropTypes.number
   })),
+  selectedCategory: PropTypes.string,
   addItemToShoppingCart: PropTypes.func,
-  removeItemFromShoppingCart: PropTypes.func
+  removeItemFromShoppingCart: PropTypes.func,
+  selectCategory: PropTypes.func
 }
 
 const mapStateToProps = (state) => ({
   items: state.items,
-  cart: state.shoppingCart.cart
+  cart: state.shoppingCart.cart,
+  selectedCategory: state.categories.selectedCategory
 });
 
 const mapDispatchToProps = (dispatch) => {
   return {
     addItemToShoppingCart: id => dispatch(actions.addItemToShoppingCart(id)),
-    removeItemFromShoppingCart: id => dispatch(actions.removeItemFromShoppingCart(id))
+    removeItemFromShoppingCart: id => dispatch(actions.removeItemFromShoppingCart(id)),
+    selectCategory: category => dispatch(actions.selectCategory(category))
   }
 }
 
