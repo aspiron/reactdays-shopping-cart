@@ -2,7 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { PropTypes } from 'prop-types';
 import { actions } from '../actions/actions';
-
+import { createItem } from './api';
+import { exampleItems } from '../reducers/initialState';
 
 const Item = ({ item, cart, addItemToShoppingCart, removeItemFromShoppingCart }) => {
   const cartItem = cart.find(cartItem => cartItem.itemId === item.id);
@@ -70,6 +71,7 @@ const HomePageComponent = ({ items, addItemToShoppingCart, cart, removeItemFromS
 
   return (
     <div>
+        <button onClick={() => exampleItems.forEach(item => createItem(item))}>Create Item</button>
         <button onClick={() => selectCategory("food")}>Food</button>
         <button onClick={() => selectCategory("fashion")}>Fashion</button> 
       {filteredItems.map(item =>

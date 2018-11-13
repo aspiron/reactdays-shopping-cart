@@ -1,6 +1,6 @@
 import foodImg from './food.jpeg';
 
-export const items = [
+export const exampleItems = [
   {
     id: 1,
     title: 'Food Item #1',

@@ -1,5 +1,5 @@
-import { items } from "./initialState";
+import { exampleItems } from "./initialState";
 
-export const itemsReducer = (state = items) => {
+export const itemsReducer = (state = exampleItems) => {
     return state;
 }
