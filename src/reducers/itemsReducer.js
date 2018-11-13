@@ -1,5 +1,14 @@
-import { exampleItems } from "./initialState";
+import { t } from "../actions/actions";
 
-export const itemsReducer = (state = exampleItems) => {
+const items = [];
+
+export const itemsReducer = (state = items, action) => {
+    switch (action.type) {
+        case t.GET_ITEMS_SUCCESS: {
+            console.log(action);
+            return action.items;
+        }
+    }
+
     return state;
 }

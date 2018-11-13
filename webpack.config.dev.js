@@ -24,6 +24,11 @@ export default {
   },
   plugins: [
     new HardSourceWebpackPlugin(),
+    new HardSourceWebpackPlugin.ExcludeModulePlugin([
+      {
+        test: /.*\.DS_Store/
+      }
+    ]),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new HtmlWebpackPlugin({     // Create HTML file that includes references to bundled CSS and JS.

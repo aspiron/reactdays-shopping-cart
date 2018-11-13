@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { PropTypes } from 'prop-types';
 import { actions } from '../actions/actions';
-import { createItem } from './api';
+import { createItem, getItem } from './api';
 import { exampleItems } from '../reducers/initialState';
 
 const Item = ({ item, cart, addItemToShoppingCart, removeItemFromShoppingCart }) => {
@@ -66,22 +66,38 @@ const Cart = ({ items, cart, addItemToShoppingCart, removeItemFromShoppingCart }
   );
 }
 
-const HomePageComponent = ({ items, addItemToShoppingCart, cart, removeItemFromShoppingCart, selectCategory, selectedCategory }) => {
-  const filteredItems = items.filter(item => item.category === selectedCategory)
 
-  return (
-    <div>
+
+class HomePageComponent extends React.Component {
+  constructor(props) {
+    super(props);
+
+  }
+
+  componentDidMount() {
+    getItem()
+    .then(response => this.props.itemsLoaded(response.data))
+    console.log(this.props);
+  }
+
+  render() {
+    const { items, addItemToShoppingCart, cart, removeItemFromShoppingCart, selectCategory, selectedCategory } = this.props
+    const filteredItems = items.filter(item => item.category === selectedCategory)
+
+    return (
+      <div>
         <button onClick={() => exampleItems.forEach(item => createItem(item))}>Create Item</button>
         <button onClick={() => selectCategory("food")}>Food</button>
-        <button onClick={() => selectCategory("fashion")}>Fashion</button> 
-      {filteredItems.map(item =>
-        <div key={item.id}>
-          <Item item={item} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart} />
-        </div>
-      )}
-      <Cart items={items} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart} />
-    </div>
-  );
+        <button onClick={() => selectCategory("fashion")}>Fashion</button>
+        {filteredItems.map(item =>
+          <div key={item.id}>
+            <Item item={item} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart} />
+          </div>
+        )}
+        <Cart items={items} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart} />
+      </div>
+    );
+  }
 }
 
 Item.propTypes = {
@@ -161,7 +177,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     addItemToShoppingCart: id => dispatch(actions.addItemToShoppingCart(id)),
     removeItemFromShoppingCart: id => dispatch(actions.removeItemFromShoppingCart(id)),
-    selectCategory: category => dispatch(actions.selectCategory(category))
+    itemsLoaded: items => dispatch(actions.getItemsSuccess(items))
   }
 }
 
