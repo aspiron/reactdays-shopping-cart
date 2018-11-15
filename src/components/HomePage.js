@@ -2,10 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { PropTypes } from 'prop-types';
 import { actions } from '../actions/actions';
-import { createItem, getItem } from './api';
+import { createItem, getItem, createCartItem, getCartItems, deleteAllCartItems, updateCartItem, deleteCartItem } from './api';
 import { exampleItems } from '../reducers/initialState';
 
-const Item = ({ item, cart, addItemToShoppingCart, removeItemFromShoppingCart }) => {
+const Item = ({ item, cart, getCartItemsSuccess }) => {
   const cartItem = cart.find(cartItem => cartItem.itemId === item.id);
 
   return (
@@ -14,27 +14,59 @@ const Item = ({ item, cart, addItemToShoppingCart, removeItemFromShoppingCart })
       <p>{item.itemImg}</p>
       <p>{item.price}</p>
       <p>{cartItem ? cartItem.count : 0}</p>
-      <button onClick={() => addItemToShoppingCart(item)}>Add to Cart</button>
-      <button onClick={() => removeItemFromShoppingCart(item)}>Remove from Cart</button>
+      <button onClick={() => addItemToShoppingCart(item, getCartItemsSuccess, cart)}>Add to Cart</button>
+      <button onClick={() => removeItemFromShoppingCart(item, getCartItemsSuccess, cart)}>Remove from Cart</button>
     </div>
   );
 }
 
-const CartItem = ({ cartItem, items, addItemToShoppingCart, removeItemFromShoppingCart }) => {
+const addItemToShoppingCart = (item, getCartItemsSuccess, cart) => {
+  const currentCartItem = cart.find(cartItem => cartItem.itemId === item.id);
+  if (currentCartItem) {
+    updateCartItem({ ...currentCartItem, count: currentCartItem.count + 1 })
+      .then(() => getCartItems())
+      .then(response => getCartItemsSuccess(response.data))
+  } else {
+    createCartItem({
+      itemId: item.id,
+      count: 1
+    })
+      .then(() => getCartItems())
+      .then(response => getCartItemsSuccess(response.data));
+  }
+}
+
+const removeItemFromShoppingCart = (item, getCartItemsSuccess, cart) => {
+  const currentCartItem = cart.find(cartItem => cartItem.itemId === item.id);
+  if (currentCartItem) {
+    if (currentCartItem.count > 1) {
+      updateCartItem({ ...currentCartItem, count: currentCartItem.count - 1 })
+      .then(() => getCartItems())
+      .then(response => getCartItemsSuccess(response.data))
+    } else {
+      deleteCartItem(currentCartItem)
+      .then(() => getCartItems())
+      .then(response => getCartItemsSuccess(response.data));
+    }
+  }
+}
+
+const CartItem = ({ cartItem, items, getCartItemsSuccess, cart }) => {
   const item = items.find(item => item.id === cartItem.itemId);
+
 
   return (
     <div>
       <p>{item.title}</p>
       <p>{item.price}</p>
       <p>{cartItem ? cartItem.count : 0}</p>
-      <button onClick={() => addItemToShoppingCart(item)}>Add to Cart</button>
-      <button onClick={() => removeItemFromShoppingCart(item)}>Remove from Cart</button>
+      <button onClick={() => addItemToShoppingCart(item, getCartItemsSuccess, cart)}>Add to Cart</button>
+      <button onClick={() => removeItemFromShoppingCart(item, getCartItemsSuccess, cart)}>Remove from Cart</button>
     </div>
   );
 }
 
-const Cart = ({ items, cart, addItemToShoppingCart, removeItemFromShoppingCart }) => {
+const Cart = ({ items, cart, getCartItemsSuccess }) => {
 
   let sum = 0;
   cart.forEach(cartItem => {
@@ -49,8 +81,8 @@ const Cart = ({ items, cart, addItemToShoppingCart, removeItemFromShoppingCart }
         <CartItem
           cartItem={cartItem}
           items={items}
-          addItemToShoppingCart={addItemToShoppingCart}
-          removeItemFromShoppingCart={removeItemFromShoppingCart}
+          getCartItemsSuccess={getCartItemsSuccess}
+          cart={cart}
         />
       </div>
     )
@@ -76,25 +108,27 @@ class HomePageComponent extends React.Component {
 
   componentDidMount() {
     getItem()
-    .then(response => this.props.itemsLoaded(response.data))
-    console.log(this.props);
+      .then(response => this.props.itemsLoaded(response.data))
+      .then(() => getCartItems())
+      .then(response => this.props.getCartItemsSuccess(response.data));
   }
 
   render() {
-    const { items, addItemToShoppingCart, cart, removeItemFromShoppingCart, selectCategory, selectedCategory } = this.props
+    const { items, cart, selectCategory, selectedCategory, getCartItemsSuccess } = this.props
     const filteredItems = items.filter(item => item.category === selectedCategory)
 
     return (
       <div>
+        <button onClick={() => deleteAllCartItems()}>Clear Shopping Cart</button>
         <button onClick={() => exampleItems.forEach(item => createItem(item))}>Create Item</button>
         <button onClick={() => selectCategory("food")}>Food</button>
         <button onClick={() => selectCategory("fashion")}>Fashion</button>
         {filteredItems.map(item =>
           <div key={item.id}>
-            <Item item={item} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart} />
+            <Item item={item} cart={cart} getCartItemsSuccess={getCartItemsSuccess} />
           </div>
         )}
-        <Cart items={items} cart={cart} addItemToShoppingCart={addItemToShoppingCart} removeItemFromShoppingCart={removeItemFromShoppingCart} />
+        <Cart items={items} cart={cart} getCartItemsSuccess={getCartItemsSuccess} />
       </div>
     );
   }
@@ -106,14 +140,14 @@ Item.propTypes = {
     title: PropTypes.title,
     itemImg: PropTypes.string,
     price: PropTypes.string
-  }),
+  }).isRequired,
   cart: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.number,
     itemId: PropTypes.number,
     count: PropTypes.number
-  })),
-  addItemToShoppingCart: PropTypes.func,
-  removeItemFromShoppingCart: PropTypes.func
+  })).isRequired,
+  removeItemFromShoppingCart: PropTypes.func.isRequired,
+  getCartItemsSuccess: PropTypes.func.isRequired
 }
 
 CartItem.propTypes = {
@@ -175,9 +209,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    addItemToShoppingCart: id => dispatch(actions.addItemToShoppingCart(id)),
-    removeItemFromShoppingCart: id => dispatch(actions.removeItemFromShoppingCart(id)),
-    itemsLoaded: items => dispatch(actions.getItemsSuccess(items))
+    itemsLoaded: items => dispatch(actions.getItemsSuccess(items)),
+    getCartItemsSuccess: items => dispatch(actions.getCartItemsSuccess(items))
   }
 }
 
@@ -187,5 +220,3 @@ const HomePage = connect(
 )(HomePageComponent);
 
 export default HomePage;
-
-

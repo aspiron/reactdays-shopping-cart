@@ -13,6 +13,14 @@ const generateId = () => {
 
 export const shoppingCartReducer = (state = initState, action) => {
     switch(action.type) {
+
+        case t.GET_CART_ITEMS_SUCCESS: {
+            console.log(action);
+            return {
+                cart: action.cartItems
+            }
+        }    
+
         case t.ADD_ITEM_TO_SHOPPING_CART: {
             const currentCartItem = state.cart
                 .find(cartItem => cartItem.itemId === action.item.id)
